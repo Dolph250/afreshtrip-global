@@ -354,7 +354,47 @@ const onPublishToggle = async () => {
 
 const handlePublishNow = async () => {
   try {
-    // ✅ Don't check hasFeatureAccess here - let backend decide
+    // ✅ VALIDATION: Get current form values
+    const formValues = getValues();
+    
+    // ✅ VALIDATION: Check for empty title
+    if (!formValues.title || formValues.title.trim() === '') {
+      showError(t('blog.titleRequired') || 'Please enter a blog title');
+      console.error('❌ Title is required');
+      return;
+    }
+
+    // ✅ VALIDATION: Check title length (min 3 characters)
+    if (formValues.title.trim().length < 3) {
+      showError(t('blog.titleTooShort') || 'Title must be at least 3 characters');
+      console.error('❌ Title too short');
+      return;
+    }
+
+    // ✅ VALIDATION: Check for empty content
+    if (!formValues.content || formValues.content.trim() === '') {
+      showError(t('blog.contentRequired') || 'Please enter blog content');
+      console.error('❌ Content is required');
+      return;
+    }
+
+    // ✅ VALIDATION: Check content length (min 10 characters)
+    if (formValues.content.trim().length < 10) {
+      showError(t('blog.contentTooShort') || 'Content must be at least 10 characters');
+      console.error('❌ Content too short');
+      return;
+    }
+
+    // ✅ VALIDATION: Check if category is selected
+    if (!formValues.categoryId) {
+      showError(t('blog.categoryRequired') || 'Please select a category');
+      console.error('❌ Category is required');
+      return;
+    }
+
+    console.log('✅ All validations passed, publishing...');
+
+    // ✅ All validations passed, proceed with publish
     setValue('isPublished', true, { shouldDirty: true });
     await handleSubmit(onSave)();
     showSuccess(t('blog.published', 'Published successfully!'));
@@ -860,7 +900,13 @@ const onSave = async (data: BlogFormValues) => {
                   </button>
                   <button
                     onClick={handlePublishNow}
-                    className="px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-lg font-medium transition-colors"
+                    disabled={!watchedValues.title?.trim() || !watchedValues.content?.trim() || !watchedValues.categoryId}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      !watchedValues.title?.trim() || !watchedValues.content?.trim() || !watchedValues.categoryId
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
+                        : 'bg-black text-white hover:bg-gray-800'
+                    }`}
+                    title={!watchedValues.title?.trim() ? 'Title is required' : !watchedValues.content?.trim() ? 'Content is required' : !watchedValues.categoryId ? 'Category is required' : 'Publish'}
                   >
                     {t('blog.publishNow', 'Publish Now')}
                   </button>

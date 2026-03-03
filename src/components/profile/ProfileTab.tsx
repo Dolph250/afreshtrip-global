@@ -1,23 +1,25 @@
 // src/components/profile/ProfileTab.tsx
-// ✅ FIREBASE VERSION - Uses Firestore profile data
+// ✅ FIXED: Reload profile from Firestore after avatar upload
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CameraIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
-import { uploadProfilePhoto } from '../../services/api/profileApi';
+import { uploadProfilePhoto, getUserProfile } from '../../services/api/profileApi';
 import type { UserProfile, ProfileUpdateData } from '../../services/api/profileApi';
 
 interface ProfileTabProps {
   onSubmit: (data: ProfileUpdateData) => Promise<void>;
   isLoading: boolean;
   userProfile: UserProfile | null;
+  onProfileRefresh?: (profile: UserProfile) => void;  // ✅ NEW: Callback to notify parent of profile changes
 }
 
 const ProfileTab: React.FC<ProfileTabProps> = ({
   onSubmit,
   isLoading,
-  userProfile
+  userProfile,
+  onProfileRefresh  // ✅ NEW
 }) => {
   const { t } = useTranslation();
   
@@ -46,18 +48,33 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
       });
       
       setAvatarPreview(userProfile.photoURL || '');
-      console.log('✅ Profile form populated');
+      console.log('✅ Profile form populated:');
+      console.log('   displayName:', userProfile.displayName);
+      console.log('   photoURL:', userProfile.photoURL);
     }
   }, [userProfile]);
 
   const handleInputChange = (field: keyof ProfileUpdateData, value: string) => {
+    console.log(`📝 Updated ${field}:`, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // ✅ Handle avatar upload
+  // ✅ FIXED: Handle avatar upload and reload profile from Firestore
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // ✅ Check file size before uploading
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    // ✅ Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
 
     setIsUploadingAvatar(true);
 
@@ -76,12 +93,29 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
       
       console.log('✅ Avatar uploaded!', imageUrl);
       
-      // Update form data with new URL
-      setFormData(prev => ({ ...prev, photoURL: imageUrl }));
+      // ✅ FIXED: Reload fresh profile from Firestore after upload
+      console.log('🔄 Reloading profile from Firestore after avatar upload...');
+      const freshProfile = await getUserProfile();
+      
+      // Update local form data with fresh Firestore data
+      setFormData(prev => ({ 
+        ...prev, 
+        photoURL: freshProfile.photoURL || ''
+      }));
+      setAvatarPreview(freshProfile.photoURL || '');
+      
+      // ✅ FIXED: Notify parent component to update its state
+      if (onProfileRefresh) {
+        console.log('📢 Notifying parent component of profile refresh');
+        onProfileRefresh(freshProfile);
+      }
+      
+      console.log('✅ Profile refreshed successfully:');
+      console.log('   photoURL updated:', freshProfile.photoURL);
       
     } catch (error) {
       console.error('❌ Avatar upload failed:', error);
-      alert('Failed to upload avatar. Please try again.');
+      alert('Failed to upload avatar. Make sure Firebase Storage rules are updated.');
       
       // Reset preview on error
       setAvatarPreview(userProfile?.photoURL || '');
@@ -180,7 +214,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
           {/* Email - Read Only */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('common.email') || 'Email'} (Read-Only)
+              {t('trips.email') || 'Email'} (Read-Only)
             </label>
             <input
               type="email"
@@ -189,14 +223,14 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
             />
             <p className="mt-1 text-xs text-gray-500">
-              {t('profile.emailReadOnly') || 'Email cannot be changed. Manage it in account settings.'}
+              {t('trips.emailReadOnly') || 'Email cannot be changed. Manage it in account settings.'}
             </p>
           </div>
 
-          {/* Display Name */}
+          {/* Display Name / Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('common.name') || 'Full Name'}
+              {t('trips.name') || 'Full Name'}
             </label>
             <input
               type="text"
@@ -205,27 +239,16 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="e.g., John Doe"
             />
-          </div>
-
-          {/* Nickname */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('common.nickname') || 'Nickname'}
-            </label>
-            <input
-              type="text"
-              value={formData.displayName}
-              onChange={(e) => handleInputChange('displayName', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              placeholder="e.g., John"
-            />
+            <p className="mt-1 text-xs text-gray-500">
+              This will be displayed as your name on your posts and comments
+            </p>
           </div>
 
           {/* Phone & DOB Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('common.phone') || 'Phone Number'}
+                {t('trips.phone') || 'Phone Number'}
               </label>
               <input
                 type="tel"
@@ -237,7 +260,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('common.birthDate') || 'Date of Birth'}
+                {t('trips.birthDate') || 'Date of Birth'}
               </label>
               <input
                 type="date"
@@ -251,7 +274,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
           {/* Gender Radio Buttons */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              {t('common.gender') || 'Gender'}
+              {t('trips.gender') || 'Gender'}
             </label>
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -292,10 +315,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {t('common.updating') || 'Updating...'}
+                  {t('trips.updating') || 'Updating...'}
                 </div>
               ) : (
-                t('common.update') || 'Update Profile'
+                t('trips.update') || 'Update Profile'
               )}
             </button>
           </div>

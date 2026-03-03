@@ -189,6 +189,15 @@
   "currentPlan": "Plan actuel",
   "freeTitle": "Plan gratuit - Accès limité",
   "freeDescription": "Vous êtes actuellement sur le plan gratuit avec des fonctionnalités limitées. Passez à VIP pour débloquer des avantages premium!",
-  "benefitsTitle": "Pourquoi passer à VIP?"
+  "benefitsTitle": "Pourquoi passer à VIP?",
+  "update": "Mettre à jour",
+    "updating": "Mise à jour en cours...",
+  "gender": "Genre",
+  "birthDate": "Date de naissance", 
+  "phone": "Numéro de téléphone",
+  "name": "Nom complet",    
+  "emailReadOnly": "L'email ne peut pas être modifié. Gérez-le dans les paramètres du compte.",
+    "updateSuccess": "Profil mis à jour avec succès",
+  "updateError": "Échec de la mise à jour du profil. Veuillez réessayer."
 
 }

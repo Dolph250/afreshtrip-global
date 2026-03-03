@@ -188,5 +188,14 @@
   "currentPlan": "当前计划",
   "freeTitle": "免费计划 - 有限访问",
   "freeDescription": "您当前处于免费计划，功能有限。升级到 VIP 以解锁高级功能！",
-  "benefitsTitle": "为什么升级到 VIP？"
+  "benefitsTitle": "为什么升级到 VIP？",
+  "update": "更新",
+  "updating": "更新中...",
+  "gender": "性别",
+  "birthDate": "出生日期", 
+  "phone": "手机号码",
+  "name": "全名",    
+  "emailReadOnly": "邮箱无法更改。请在账户设置中管理邮箱。",
+    "updateSuccess": "个人资料更新成功",
+  "updateError": "更新个人资料失败。请重试。"
 }

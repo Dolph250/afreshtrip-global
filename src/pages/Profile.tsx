@@ -1,5 +1,5 @@
 // src/pages/Profile.tsx
-// ✅ FIREBASE VERSION - Uses Firestore for profile data
+// ✅ FIXED: Add callback for profile refresh after avatar upload
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -85,7 +85,9 @@ const Profile: React.FC = () => {
         const profile = await getUserProfile();
         setUserProfile(profile);
         
-        console.log('✅ Profile loaded:', profile);
+        console.log('✅ Profile loaded successfully:');
+        console.log('   displayName:', profile.displayName);
+        console.log('   photoURL:', profile.photoURL);
       } catch (error) {
         console.error('❌ Failed to load profile:', error);
         showError(t('common.error.loadProfileFailed') || 'Failed to load profile');
@@ -112,10 +114,13 @@ const Profile: React.FC = () => {
       // Call Firestore update
       const updatedProfile = await updateUserProfile(formData);
       
-      // Update local state
+      // Update local state with fresh Firestore data
       setUserProfile(updatedProfile);
       
       console.log('✅ Profile updated successfully');
+      console.log('   displayName:', updatedProfile.displayName);
+      console.log('   photoURL:', updatedProfile.photoURL);
+      
       showSuccess(t('trips.updateSuccess') || 'Profile updated successfully!');
       
     } catch (error) {
@@ -129,6 +134,16 @@ const Profile: React.FC = () => {
     } finally {
       setIsUpdatingProfile(false);
     }
+  };
+
+  // ✅ FIXED: Handle profile refresh after avatar upload
+  const handleProfileRefresh = (refreshedProfile: UserProfile) => {
+    console.log('🔄 Profile refresh callback triggered');
+    console.log('   Updated displayName:', refreshedProfile.displayName);
+    console.log('   Updated photoURL:', refreshedProfile.photoURL);
+    
+    // Update the parent component's state with fresh profile
+    setUserProfile(refreshedProfile);
   };
 
   const handleLogout = async () => {
@@ -149,6 +164,7 @@ const Profile: React.FC = () => {
             onSubmit={handleProfileUpdate}
             isLoading={isUpdatingProfile}
             userProfile={userProfile}
+            onProfileRefresh={handleProfileRefresh}  // ✅ FIXED: Pass callback
           />
         );
       case 'subscription':

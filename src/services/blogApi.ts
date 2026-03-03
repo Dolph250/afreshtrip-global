@@ -402,59 +402,67 @@ export const uploadBlogMedia = async (file: File): Promise<string> => {
  * POST /blog/likeBlog with type parameter
  */
 export const togglePostLike = async (
-  blId: string,
+  postId: string,
   currentIsLiked: boolean
 ): Promise<{ likes: number; isLiked: boolean }> => {
-  console.log('❤️ Toggling like for blog:', blId, 'Current isLiked:', currentIsLiked);
+  console.log('❤️ Toggling like for blog:', postId, 'Current isLiked:', currentIsLiked);
 
-  if (IS_CHINESE_VERSION) {
-    try {
-      interface LikeResponse {
-        code: number;
-        msg: string;
-        data?: {
-          likes?: number;
-          like?: number;
-          isLiked?: boolean;
-        };
-      }
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('User must be logged in to like posts');
+  }
 
-      // ✅ IMPORTANT: Send correct type based on current state
-      // If already liked (currentIsLiked=true), send type:0 to UNLIKE
-      // If not liked (currentIsLiked=false), send type:1 to LIKE
-      const typeValue = currentIsLiked ? '0' : '1';
+  try {
+    const docRef = doc(db, BLOG_COLLECTION, postId);
+    const docSnap = await getDoc(docRef);
 
-      console.log('📤 Sending type:', typeValue, '(', currentIsLiked ? 'unlike' : 'like', ')');
+    if (!docSnap.exists()) {
+      throw new Error('Post not found');
+    }
 
-      const response = await httpClient.post<LikeResponse>('/blog/likeBlog', {
-        blId: blId,
-        type: typeValue  // ✅ 1=like, 0=unlike
+    const data = docSnap.data();
+    const likedBy = data.likedBy || [];
+    const currentLikes = data.likes || 0;
+
+    if (currentIsLiked) {
+      // ✅ UNLIKE: Remove user from likedBy array and decrement likes
+      const newLikedBy = likedBy.filter((id: string) => id !== user.uid);
+      
+      await updateDoc(docRef, {
+        likes: Math.max(0, currentLikes - 1),
+        likedBy: newLikedBy,
+        updatedAt: serverTimestamp()
       });
 
-      if (response.code === 200) {
-        console.log('✅ Like toggled successfully');
-        const likes = response.data?.likes || response.data?.like || 0;
-        const isLiked = response.data?.isLiked ?? !currentIsLiked;  // Toggle state
-        
-        console.log('📊 New state - Likes:', likes, 'IsLiked:', isLiked);
-        
-        return {
-          likes: likes,
-          isLiked: isLiked
-        };
-      }
+      console.log('✅ Post unliked! Likes:', Math.max(0, currentLikes - 1));
+      
+      return {
+        likes: Math.max(0, currentLikes - 1),
+        isLiked: false
+      };
+    } else {
+      // ✅ LIKE: Add user to likedBy array and increment likes
+      const newLikedBy = [...likedBy, user.uid];
+      
+      await updateDoc(docRef, {
+        likes: currentLikes + 1,
+        likedBy: newLikedBy,
+        updatedAt: serverTimestamp()
+      });
 
-      throw new Error(response.msg || 'Failed to toggle like');
-    } catch (error: any) {
-      console.error('❌ Error toggling like:', error);
-      console.error('   Message:', error.message);
-      throw error;
+      console.log('✅ Post liked! Likes:', currentLikes + 1);
+      
+      return {
+        likes: currentLikes + 1,
+        isLiked: true
+      };
     }
-  } else {
-    // Firebase fallback
-    throw new Error('Like functionality not implemented for Firebase');
+  } catch (error: any) {
+    console.error('❌ Error toggling like:', error);
+    throw error;
   }
 };
+
 
 // ============================================================================
 // VIEW TRACKING

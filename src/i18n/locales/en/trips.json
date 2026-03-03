@@ -187,6 +187,16 @@
   "currentPlan": "Current Plan",
   "freeTitle": "Free Plan - Limited Access",
   "freeDescription": "You are currently on the free plan with limited features. Upgrade to VIP to unlock premium benefits!",
-  "benefitsTitle": "Why Upgrade to VIP?"
+  "benefitsTitle": "Why Upgrade to VIP?",
+  "update": "Update",
+  "updating": "Updating...",
+  "gender": "Gender",
+  "birthDate": "Date of Birth", 
+  "phone": "Phone Number",
+  "name": "Full Name",    
+  "emailReadOnly": "Email cannot be changed. Manage it in account settings.",
+  "updateSuccess": "Profile updated successfully",
+  "updateError": "Failed to update profile. Please try again."
+
   
 }

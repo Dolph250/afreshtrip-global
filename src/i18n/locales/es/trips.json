@@ -186,7 +186,16 @@
   "currentPlan": "Plan actual",
   "freeTitle": "Plan gratuito - Acceso limitado",
   "freeDescription": "Actualmente estás en el plan gratuito con funciones limitadas. ¡Actualiza a VIP para desbloquear beneficios premium!",
-  "benefitsTitle": "¿Por qué actualizar a VIP?"
+  "benefitsTitle": "¿Por qué actualizar a VIP?",
+  "update": "Actualizar",
+  "updating": "Actualizando...",
+  "gender": "énero",
+  "birthDate": "Fecha de nacimiento", 
+  "phone": "Número de teléfono",
+  "name": "Nombre completo",    
+  "emailReadOnly": "El correo electrónico no puede ser cambiado. Gérelo en los ajustes de la cuenta.",
+  "updateSuccess": "Perfil actualizado con éxito",
+  "updateError": "Error al actualizar el perfil. Por favor, inténtalo de nuevo."
     
 
     

@@ -1,5 +1,5 @@
-// src/services/profileApi.ts
-// ✅ FIREBASE VERSION - Uses Firestore instead of Chinese API
+// src/services/api/profileApi.ts
+// ✅ FIXED: Always prefer Firestore values over Firebase Auth defaults
 
 import {
   collection,
@@ -41,12 +41,21 @@ export interface ProfileUpdateData {
 }
 
 // ============================================================================
-// GET USER PROFILE
+// GET USER PROFILE - FIXED: Prefer Firestore values
 // ============================================================================
 
 /**
  * Get user's profile from Firestore
- * Combines Firebase Auth data + Firestore user document
+ * ✅ FIXED: Always prefer Firestore values over Firebase Auth
+ * 
+ * Why this matters:
+ * - Firebase Auth stores Google account defaults (Gmail name, Google photo)
+ * - Firestore stores user's actual profile (custom name, uploaded photo)
+ * - On refresh, if we use Auth defaults first, updated profile disappears
+ * 
+ * Solution:
+ * - Always use Firestore values when available
+ * - Only use Firebase Auth as fallback for new users
  */
 export const getUserProfile = async (): Promise<UserProfile> => {
   const user = auth.currentUser;
@@ -62,21 +71,24 @@ export const getUserProfile = async (): Promise<UserProfile> => {
     const userDocRef = doc(db, 'users', user.uid);
     const userDocSnap = await getDoc(userDocRef);
 
-    // Combine Firebase Auth + Firestore data
-    const profile: UserProfile = {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || ''
-    };
-
-    // Add Firestore data if exists
+    // If Firestore document exists, use it as primary source
     if (userDocSnap.exists()) {
       const firestoreData = userDocSnap.data();
       console.log('✅ Firestore user document found');
       
-      return {
-        ...profile,
+      // ✅ FIXED: Build profile with Firestore as PRIMARY source
+      // Check if Firestore has the value, use it; otherwise fall back to Firebase Auth
+      const profile: UserProfile = {
+        uid: user.uid,
+        email: user.email || '',
+        // ✅ Prefer Firestore displayName - if it's empty/missing, fall back to Firebase Auth
+        displayName: firestoreData.displayName && firestoreData.displayName.trim() 
+          ? firestoreData.displayName 
+          : user.displayName || '',
+        // ✅ Prefer Firestore photoURL - if it's empty/missing, fall back to Firebase Auth
+        photoURL: firestoreData.photoURL && firestoreData.photoURL.trim()
+          ? firestoreData.photoURL
+          : user.photoURL || '',
         phoneNumber: firestoreData.phoneNumber,
         gender: firestoreData.gender,
         birthDate: firestoreData.birthDate,
@@ -85,13 +97,26 @@ export const getUserProfile = async (): Promise<UserProfile> => {
         updatedAt: firestoreData.updatedAt,
         isPublicProfile: firestoreData.isPublicProfile
       };
+
+      console.log('✅ Profile loaded from Firestore (Firestore values preferred):');
+      console.log('   displayName:', profile.displayName, '(from Firestore)');
+      console.log('   photoURL:', profile.photoURL, '(from Firestore)');
+      return profile;
     } else {
       console.log('⚠️ Firestore user document not found, creating one...');
       
-      // Create user document on first login
-      await createUserProfile(user.uid, profile);
+      // Create user document on first login with Firebase Auth defaults
+      const initialProfile: UserProfile = {
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || ''
+      };
       
-      return profile;
+      await createUserProfile(user.uid, initialProfile);
+      
+      console.log('✅ Created new Firestore profile from Firebase Auth defaults');
+      return initialProfile;
     }
   } catch (error) {
     console.error('❌ Error fetching user profile:', error);
@@ -178,10 +203,14 @@ export const updateUserProfile = async (
     // Update Firestore document
     await updateDoc(userDocRef, updateData);
 
-    console.log('✅ Profile updated successfully');
+    console.log('✅ Profile updated successfully in Firestore');
 
-    // Return updated profile
-    return getUserProfile();
+    // ✅ Return fresh profile from Firestore to ensure latest data
+    const freshProfile = await getUserProfile();
+    console.log('✅ Fresh profile loaded after update:');
+    console.log('   displayName:', freshProfile.displayName);
+    console.log('   photoURL:', freshProfile.photoURL);
+    return freshProfile;
   } catch (error) {
     console.error('❌ Error updating profile:', error);
     throw error;
@@ -215,9 +244,10 @@ export const uploadProfilePhoto = async (file: File): Promise<string> => {
     const downloadURL = await getDownloadURL(storageRef);
     console.log('✅ Photo uploaded! URL:', downloadURL);
 
-    // Update profile with new photo URL
-    await updateUserProfile({ photoURL: downloadURL });
+    // ✅ Update profile and get fresh data
+    const updatedProfile = await updateUserProfile({ photoURL: downloadURL });
 
+    console.log('✅ Profile updated with new photo URL');
     return downloadURL;
   } catch (error) {
     console.error('❌ Error uploading photo:', error);
