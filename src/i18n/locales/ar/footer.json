@@ -17,5 +17,8 @@
   "subscribe": "اشتراك",
   "subscriptionSuccess": "تم الاشتراك بنجاح!",
   "followUs": "تابعنا",
-  "allRightsReserved": "جميع الحقوق محفوظة"
+  "allRightsReserved": "جميع الحقوق محفوظة",
+  "address": "العنوان",
+   "workAddress": "المبنى رقم 2،\nمركز Zhihui للابتكار،\nمنطقة Xihu، هانغتشو،\nZhejiang، الصين",
+    "trips": "الجولات"
 }

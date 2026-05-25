@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { CONTACT_EMAIL, CONTACT_PHONE } from '../utils/contact';
 
 interface FooterProps {
   companyName?: string;
@@ -21,8 +22,8 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({
   companyName = "Afreshtrip",
   companyLogo = "/assets/tubiao.png",
-  contactEmail = "info@afreshtrip.com",
-  contactPhone = "+1 (555) 123-4567",
+  contactEmail = CONTACT_EMAIL,
+  contactPhone = CONTACT_PHONE,
   socialLinks = {
     facebook: "https://facebook.com/afreshtrip",
     instagram: "https://instagram.com/afreshtrip",
@@ -114,7 +115,7 @@ const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-2">
             <h3 className="text-lg font-serif font-semibold text-white mb-6 tracking-wide">{t('footer.quickLinks')}</h3>
             <ul className="space-y-4">
-              {['aboutUs', 'destinations', 'tours', 'blog', 'faq'].map((link) => (
+              {['aboutUs', 'trips', 'blog', 'faq'].map((link) => (
                 <li key={link}>
                   <Link 
                     to={`/${link === 'aboutUs' ? 'about' : link}`} 
@@ -147,40 +148,7 @@ const Footer: React.FC<FooterProps> = ({
 
           {/* Column 4: Newsletter & Contact (Span 4) */}
           <div className="lg:col-span-4">
-            {showNewsletter && (
-              <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-serif font-semibold text-white mb-2">{t('footer.newsletter')}</h3>
-                <p className="text-slate-400 mb-4 text-sm">
-                  {t('footer.newsletterDescription')}
-                </p>
-                <form onSubmit={handleNewsletterSubmit} className="space-y-3 relative">
-                  <div className="relative">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={t('footer.emailPlaceholder')}
-                      className="w-full pl-4 pr-12 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-white placeholder-slate-500 transition-all"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="absolute right-1 top-1 bottom-1 w-10 bg-teal-600 text-white rounded-lg flex items-center justify-center hover:bg-teal-500 transition-colors"
-                      aria-label="Subscribe"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                  {isSubscribed && (
-                    <div className="absolute top-full left-0 mt-2 text-green-400 text-xs font-medium animate-fade-in-up">
-                      {t('footer.subscriptionSuccess')}
-                    </div>
-                  )}
-                </form>
-              </div>
-            )}
+        <h3 className="text-lg font-serif font-semibold text-white mb-6 tracking-wide">{t('footer.address')}</h3>
 
             <div className="mt-8">
               <div className="flex items-center gap-3 text-slate-400 mb-3 hover:text-white transition-colors cursor-pointer">
@@ -199,6 +167,25 @@ const Footer: React.FC<FooterProps> = ({
                 </div>
                 <a href={`tel:${contactPhone}`} className="text-sm">{contactPhone}</a>
               </div>
+
+<div className="flex items-start gap-3 text-slate-400 hover:text-white transition-colors cursor-pointer mt-3">
+  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-teal-500">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  </div>
+ <div className="text-sm leading-relaxed">
+
+  {t('footer.workAddress').split('\n').map((line, index) => (
+    <span key={index}>
+      {line}
+      <br />
+    </span>
+  ))}
+</div>
+</div>
+
             </div>
           </div>
         </div>

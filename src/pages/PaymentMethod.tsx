@@ -9,6 +9,9 @@ interface LocationState {
   planId: string;
   planName?: string;
   planPrice?: number;
+  currency?: string;
+  currencySymbol?: string;
+  vipTypeId?: number;
 }
 
 const PaymentMethod: React.FC = () => {
@@ -55,10 +58,10 @@ const PaymentMethod: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-slate-900 mb-4">
-              {t('payment.selectMethod', 'Payment')}
+              {t('trips.paymentTitle', 'Payment')}
             </h1>
             <p className="text-lg text-slate-600">
-              {t('payment.chooseMethod', 'Choose your payment method')}
+              {t('trips.paymentChooseMethod', 'Choose your payment method')}
             </p>
           </div>
 
@@ -84,10 +87,10 @@ const PaymentMethod: React.FC = () => {
                   </div>
                   <div className="text-left">
                     <h3 className="text-lg font-semibold text-slate-900">
-                      {t('payment.creditCard', 'Credit / Debit Card')}
+                      {t('trips.creditCard', 'Credit / Debit Card')}
                     </h3>
                     <p className="text-sm text-slate-500">
-                      Visa, Mastercard, American Express
+                {t('trips.creditCardBrands', 'Visa, Mastercard, American Express')}
                     </p>
                   </div>
                 </div>
@@ -119,10 +122,10 @@ const PaymentMethod: React.FC = () => {
                   </div>
                   <div className="text-left">
                     <h3 className="text-lg font-semibold text-slate-900">
-                      {t('payment.alipay', 'Alipay')}
+                      {t('trips.alipay', 'Alipay')}
                     </h3>
                     <p className="text-sm text-slate-500">
-                      {t('payment.scanQR', 'Scan QR code with Alipay app')}
+                      {t('trips.scanQR', 'Scan QR code with Alipay app')}
                     </p>
                   </div>
                 </div>
@@ -147,7 +150,7 @@ const PaymentMethod: React.FC = () => {
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
           >
-            {t('payment.continue', 'Continue')}
+            {t('trips.continue', 'Continue')}
           </button>
 
           {/* Back Link */}
@@ -155,7 +158,7 @@ const PaymentMethod: React.FC = () => {
             onClick={() => navigate('/pricing')}
             className="w-full mt-4 py-3 text-slate-600 hover:text-slate-900 transition-colors"
           >
-            ← {t('payment.backToPricing', 'Back to pricing')}
+            ← {t('trips.backToPricing', 'Back to pricing')}
           </button>
         </div>
       </div>

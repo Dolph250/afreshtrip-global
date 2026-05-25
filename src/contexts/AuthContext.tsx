@@ -35,6 +35,7 @@ interface AuthContextType {
   endTime: string | null;
   isPremium: boolean;
   isExpired: boolean;
+  updatePayType: (type: number) => void;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -65,10 +66,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [customUser, setCustomUser] = useState<CustomUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const queryClient = useQueryClient();
+const updatePayType = (type: number) => {
+  console.log('🔄 Updating payType to:', type);
 
+  setPayType(type);
+
+  // persist (important for refresh)
+  localStorage.setItem('payType', String(type));
+};
   // ✅ For Firebase global version, we don't fetch user features from API
   // All data comes from Firebase Auth
-  const payType = 0;  // Free tier (can be extended with Firestore user doc)
+  const [payType, setPayType] = useState<number>(0);
   const startTime = null;
   const endTime = null;
   const isExpired = false;
@@ -153,6 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     isCustomAuth,
     payType,
+     updatePayType,   // ✅ REQUIRED
     startTime,
     endTime,
     isPremium,

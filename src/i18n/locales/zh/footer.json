@@ -17,5 +17,8 @@
   "subscribe": "订阅",
   "subscriptionSuccess": "订阅成功！",
   "followUs": "关注我们",
-  "allRightsReserved": "版权所有"
+  "allRightsReserved": "版权所有",
+  "address": "地址",
+    "workAddress": "中国浙江省杭州市西湖区智慧创新中心2号楼",
+    "trips": "旅游"
 }

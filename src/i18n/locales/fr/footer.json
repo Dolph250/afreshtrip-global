@@ -17,5 +17,8 @@
   "subscribe": "S'abonner",
   "subscriptionSuccess": "Abonnement réussi !",
   "followUs": "Suivez-nous",
-  "allRightsReserved": "Tous droits réservés"
+  "allRightsReserved": "Tous droits réservés",
+  "address": "Adresse",
+    "workAddress": "Bâtiment numéro 2, Centre d'innovation Zhihui,\nDistrict de Xihu, Hangzhou, Zhejiang, Chine",
+   "trips": "Tours"
 }

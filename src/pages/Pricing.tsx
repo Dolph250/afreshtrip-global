@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../contexts/AuthContext';
-
+import { useCurrency } from '../hooks/useCurrency';
 interface PricingPlan {
   id: string;
   name: string;
@@ -22,72 +22,72 @@ const Pricing: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { payType } = useAuth(); // ✅ Get current payType from context
-  
+  const { symbol, getPrice, code } = useCurrency();
   const [activePeriod, setActivePeriod] = useState<'week' | 'month' | 'season' | 'year'>('week');
   const [selectedPlan, setSelectedPlan] = useState<string>('');
 
-  const plans: PricingPlan[] = [
-    {
-      id: 'week',
-      name: t('pricing.week', 'Week'),
-      price: 19,
-      period: t('pricing.perWeek', 'Per week'),
-      billingCycle: 'week',
-      vipTypeId: 1,
-      features: [
-        t('pricing.features.unlimitedTrips', 'Unlimited trip planning'),
-        t('pricing.features.aiRecommendations', 'AI-powered recommendations'),
-        t('pricing.features.offlineAccess', 'Offline access'),
-        t('pricing.features.prioritySupport', 'Priority support'),
-      ]
-    },
-    {
-      id: 'month',
-      name: t('pricing.month', 'Month'),
-      price: 39,
-      period: t('pricing.perMonth', 'Per month'),
-      billingCycle: 'month',
-      vipTypeId: 2,
-      popular: true,
-      savings: t('pricing.save30', 'Save 30%'),
-      features: [
-        t('pricing.features.allWeekFeatures', 'All Week features'),
-        t('pricing.features.advancedAnalytics', 'Advanced analytics'),
-        t('pricing.features.teamCollaboration', 'Team collaboration'),
-        t('pricing.features.customBranding', 'Custom branding'),
-      ]
-    },
-    {
-      id: 'season',
-      name: t('pricing.season', 'Season'),
-      price: 89,
-      period: t('pricing.perMonth', 'Per month'),
-      billingCycle: 'season',
-      vipTypeId: 3,
-      savings: t('pricing.save40', 'Save 40%'),
-      features: [
-        t('pricing.features.allMonthFeatures', 'All Month features'),
-        t('pricing.features.dedicatedManager', 'Dedicated account manager'),
-        t('pricing.features.apiAccess', 'API access'),
-        t('pricing.features.whiteLabel', 'White-label options'),
-      ]
-    },
-    {
-      id: 'year',
-      name: t('pricing.year', 'Year'),
-      price: 199,
-      period: t('pricing.perMonth', 'Per month'),
-      billingCycle: 'year',
-      vipTypeId: 4,
-      savings: t('pricing.save50', 'Save 50%'),
-      features: [
-        t('pricing.features.allSeasonFeatures', 'All Season features'),
-        t('pricing.features.lifetimeUpdates', 'Lifetime updates'),
-        t('pricing.features.vipSupport', 'VIP support'),
-        t('pricing.features.earlyAccess', 'Early access to new features'),
-      ]
-    }
-  ];
+const plans: PricingPlan[] = [
+  {
+    id: 'week',
+    name: t('trips.week', 'Week'),
+    price: getPrice('week'),
+    period: t('trips.perWeek', 'Per week'),
+    billingCycle: 'week',
+    vipTypeId: 1,
+    features: [
+      t('trips.feature_unlimitedTrips', 'Unlimited trip planning'),
+      t('trips.feature_aiRecommendations', 'AI-powered recommendations'),
+      t('trips.feature_offlineAccess', 'Offline access'),
+      t('trips.feature_prioritySupport', 'Priority support'),
+    ]
+  },
+  {
+    id: 'month',
+    name: t('trips.month', 'Month'),
+    price: getPrice('month'),
+    period: t('trips.perMonth', 'Per month'),
+    billingCycle: 'month',
+    vipTypeId: 2,
+    popular: true,
+    savings: t('trips.save30', 'Save 30%'),
+    features: [
+      t('trips.feature_allWeekFeatures', 'All Week features'),
+      t('trips.feature_advancedAnalytics', 'Advanced analytics'),
+      t('trips.feature_teamCollaboration', 'Team collaboration'),
+      t('trips.feature_customBranding', 'Custom branding'),
+    ]
+  },
+  {
+    id: 'season',
+    name: t('trips.season', 'Season'),
+    price: getPrice('season'),
+    period: t('trips.perSeason', 'Per quarter'),
+    billingCycle: 'season',
+    vipTypeId: 3,
+    savings: t('trips.save40', 'Save 40%'),
+    features: [
+      t('trips.feature_allMonthFeatures', 'All Month features'),
+      t('trips.feature_dedicatedManager', 'Dedicated account manager'),
+      t('trips.feature_apiAccess', 'API access'),
+      t('trips.feature_whiteLabel', 'White-label options'),
+    ]
+  },
+  {
+    id: 'year',
+    name: t('trips.year', 'Year'),
+    price: getPrice('year'),
+    period: t('trips.perYear', 'Per year'),
+    billingCycle: 'year',
+    vipTypeId: 4,
+    savings: t('trips.save50', 'Save 50%'),
+    features: [
+      t('trips.feature_allSeasonFeatures', 'All Season features'),
+      t('trips.feature_lifetimeUpdates', 'Lifetime updates'),
+      t('trips.feature_vipSupport', 'VIP support'),
+      t('trips.feature_earlyAccess', 'Early access to new features'),
+    ]
+  }
+];
 
   // ✅ Auto-select current plan based on payType
   useEffect(() => {
@@ -125,14 +125,16 @@ const Pricing: React.FC = () => {
     });
     
     // Navigate to payment method selection with all plan details
-    navigate('/payment/method', { 
-      state: { 
-        planId: planId,
-        planName: selectedPlanData?.name,
-        planPrice: selectedPlanData?.price,
-        vipTypeId: selectedPlanData?.vipTypeId
-      } 
-    });
+  navigate('/payment/method', { 
+  state: { 
+    planId: planId,
+    planName: selectedPlanData?.name,
+    planPrice: selectedPlanData?.price,
+    currency: code,           // 'CNY' or 'USD'
+    currencySymbol: symbol,   // '¥' or '$'
+    vipTypeId: selectedPlanData?.vipTypeId
+  } 
+});
   };
 
   return (
@@ -143,17 +145,17 @@ const Pricing: React.FC = () => {
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            {t('pricing.title', 'Choose Your Plan')}
+            {t('trips.pricingTitle', 'Choose Your Plan')}
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            {t('pricing.subtitle', 'Unlock unlimited trips, AI recommendations, and more')}
+            {t('trips.pricingSubtitle', 'Unlock unlimited trips, AI recommendations, and more')}
           </p>
 
           {/* ✅ Show current subscription if exists */}
           {payType > 0 && (
             <div className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-teal-100 border border-teal-300 rounded-full">
               <span className="text-teal-700 font-medium">
-                ⭐ {t('pricing.currentPlan', 'Current Plan')}: 
+              {t('trips.currentPlan', 'Current Plan')}: 
               </span>
               <span className="font-bold text-teal-900">
                 {plans.find(p => p.vipTypeId === payType)?.name || 'VIP'}
@@ -163,26 +165,7 @@ const Pricing: React.FC = () => {
         </div>
       </div>
 
-      {/* Period Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="flex justify-center">
-          <div className="inline-flex bg-white rounded-lg p-1 shadow-sm border border-slate-200">
-            {['week', 'month', 'season', 'year'].map((period) => (
-              <button
-                key={period}
-                onClick={() => setActivePeriod(period as any)}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                  activePeriod === period
-                    ? 'bg-teal-600 text-white shadow-md'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {t(`pricing.${period}`, period.charAt(0).toUpperCase() + period.slice(1))}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+ 
 
       {/* Pricing Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
@@ -209,7 +192,7 @@ const Pricing: React.FC = () => {
                 {isCurrentPlan && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-purple-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
-                      ✨ {t('pricing.yourCurrentPlan', 'Current Plan')}
+                       {t('trips.yourCurrentPlan', 'Current Plan')}
                     </span>
                   </div>
                 )}
@@ -218,7 +201,7 @@ const Pricing: React.FC = () => {
                 {!isCurrentPlan && plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-teal-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
-                      {t('pricing.popular', 'Most Popular')}
+                      {t('trips.popular', 'Most Popular')}
                     </span>
                   </div>
                 )}
@@ -240,9 +223,9 @@ const Pricing: React.FC = () => {
 
                   {/* Price */}
                   <div className="mb-6">
-                    <span className="text-5xl font-bold text-slate-900">
-                      ${plan.price}
-                    </span>
+                          <span className="text-5xl font-bold text-slate-900">
+          {symbol}{plan.price}
+        </span>
                     <span className="text-slate-600 ml-2">
                       {plan.period}
                     </span>
@@ -274,10 +257,10 @@ const Pricing: React.FC = () => {
                     }`}
                   >
                     {isCurrentPlan
-                      ? `✓ ${t('pricing.currentPlan', 'Current Plan')}`
+                      ? `✓ ${t('trips.currentPlan', 'Current Plan')}`
                       : selectedPlan === plan.id
-                      ? t('pricing.selected', 'Selected')
-                      : t('pricing.select', 'Select Plan')}
+                      ? t('trips.selected', 'Selected')
+                      : t('trips.select', 'Select Plan')}
                   </button>
                 </div>
               </div>
@@ -290,34 +273,34 @@ const Pricing: React.FC = () => {
       <div className="bg-slate-50 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
-            {t('pricing.faqTitle', 'Frequently Asked Questions')}
+            {t('trips.faqTitle', 'Frequently Asked Questions')}
           </h2>
           
           <div className="space-y-6">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                {t('pricing.faq1Question', 'Can I change my plan later?')}
+               {t('trips.faq1Q', 'Can I change my plan later?')}
               </h3>
               <p className="text-slate-600">
-                {t('pricing.faq1Answer', 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.')}
+              {t('trips.faq1A', 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.')}
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                {t('pricing.faq2Question', 'Is there a free trial?')}
+              {t('trips.faq2Q', 'Is there a free trial?')}
               </h3>
               <p className="text-slate-600">
-                {t('pricing.faq2Answer', 'We offer a 7-day free trial for all plans. No credit card required.')}
+                {t('trips.faq2A', 'We offer a 7-day free trial for all plans. No credit card required.')}
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                {t('pricing.faq3Question', 'What payment methods do you accept?')}
+                {t('trips.faq3Q', 'What payment methods do you accept?')}
               </h3>
               <p className="text-slate-600">
-                {t('pricing.faq3Answer', 'We accept all major credit cards, PayPal, and bank transfers.')}
+                {t('trips.faq3A', 'We accept all major credit cards, PayPal, and bank transfers.')}
               </p>
             </div>
           </div>

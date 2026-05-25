@@ -13,7 +13,7 @@ export const PrivacyPolicyEU_EN: React.FC = () => {
 
       <Section title="Introduction">
         <p>
-          Welcome to afreshtrip! We are <strong>anstalle (Hangzhou) Information Technology Co., Ltd.</strong> (Address: [xxxxxxxxxxxxxxxx]).
+          Welcome to afreshtrip! We are <strong>anstalle (Hangzhou) Information Technology Co., Ltd.</strong> (Address: Number 2 Building, Zhihui Innovation Center,Xihu District, Hangzhou, Zhejiang, China).
           We act as the <strong>Data Controller</strong> strictly complying with the EU <em>General Data Protection Regulation</em> (GDPR).
         </p>
         
@@ -119,7 +119,7 @@ export const PrivacyPolicyEU_EN: React.FC = () => {
             by contacting our Data Protection Officer (DPO) to understand in detail how your data is protected globally.
           </p>
           <p className="mt-2 text-sm text-slate-500">
-            Contact email: dpo@anstalle.com | Contact phone: +86-xxx-xxxx-xxxx
+            Contact email: contact@anstalle.com | Contact phone: +86-15822674205
           </p>
         </SubSection>
       </Section>
@@ -272,7 +272,7 @@ export const PrivacyPolicyEU_EN: React.FC = () => {
             <li><strong>Right to Withdraw Consent:</strong> Withdraw given consent at any time, and we will stop processing the relevant data accordingly.</li>
           </ul>
           <div className="bg-blue-50 p-4 rounded mt-3 text-blue-800 text-sm">
-            <strong>Unified Channel for Exercising Rights:</strong> Please contact us through the dedicated email <strong>dpo@anstalle.com</strong>. 
+            <strong>Unified Channel for Exercising Rights:</strong> Please contact us through the dedicated email <strong>contact@anstalle.com</strong>. 
             To ensure child safety, we require you to provide verifiable identity proof (such as proof of guardianship, ID documents of both parties) to process your request. 
             We commit to responding and processing within <strong>72 hours</strong> of receiving a valid request.
           </div>
@@ -303,13 +303,13 @@ export const PrivacyPolicyEU_EN: React.FC = () => {
 
       <Section title="Contact Us">
         <p>
-          If you have any questions or suggestions, you can contact us through the anstalle official website (www.anstalle.com) or customer service hotline [+86-xxx-xxxx-xxxx]. 
+          If you have any questions or suggestions, you can contact us through the anstalle official website (www.anstalle.com) or customer service hotline [+86-15822674205]. 
           We will sincerely provide you with assistance.
         </p>
         <div className="bg-blue-50 p-4 rounded mt-4 text-blue-800 text-sm">
           <strong>Data Protection Officer (DPO) Contact:</strong><br />
-          Email: dpo@anstalle.com<br />
-          Phone: +86-xxx-xxxx-xxxx
+          Email: contact@anstalle.com<br />
+          Phone: +86-15822674205
         </div>
       </Section>
     </div>
